@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @CrossOrigin // Cors 정책 설정
 @RestController
 @RequestMapping("/todos")
@@ -43,14 +46,17 @@ public class TodoController {
     @GetMapping("/{id}")
     public ResponseEntity findToDo(@PathVariable("id") Long id) {
         ToDo toDo = toDoService.findToDo(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new ToDoResponseDto(toDo), HttpStatus.OK);
     }
 
     // Read 할 일 목록 전체 조회
     @GetMapping
-    public ResponseEntity findToDos() {
-        toDoService.findToDos();
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<List<ToDoResponseDto>> findToDos() {
+        List<ToDo> toDos = toDoService.findToDos();
+        List<ToDoResponseDto> toDoResponseDtos = toDos.stream()
+                .map(ToDoResponseDto::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(toDoResponseDtos, HttpStatus.OK);
     }
 
     // Delete 할 일 목록 삭제
